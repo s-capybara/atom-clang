@@ -22,7 +22,21 @@ Since this is a package uses C++, it will require the package to be compiled. Th
 
 LibClang is detected via `llvm-config` command. It needs to build and link against the LibClang headers and library. It attempts to find the newest version of `llvm-config` it can on your system. One can override the search by having the `LLVM_CONFIG` environment variable set, e.g. `LLVM_CONFIG=/opt/clang+llvm-3.9.0-x86_64-linux-gnu-ubuntu-16.04/bin/llvm-config`.Currently, I do not know of way "at package install time" through Atom to let the user specify which one to use. See [llvm-config.sh](https://github.com/joeroback/atom-clang/blob/master/llvm-config.sh).
 
-Currently, this only works on Linux and Mac. I do not have a Windows computer. I would welcome any patches / pull requests to add Windows support.
+### Windows
+
+On Windows, currently this package works only with MSYS2's 32-bit clang.
+64-bit libclang.dll doesn't work because Atom on Windows is 32-bit.
+In addition, if 64-bit version of gcc (clang depends on llvm, and llvm depends on gcc) is installed,
+libclang.dll can't find appropriate standard headers such as iostream when running libclang.dll.
+
+Thus, the installation of clang prerequisites is as follows:
+
+* pacman -R mingw-w64-x86_64-clang
+* pacman -S mingw-w64-i686-clang
+
+To build with node-gyp, Visual Studio 2015 is also required.
+Subsequent installation of this package must be done in MSYS2's shell, or in Atom
+opened from there.
 
 ### Installing
 
