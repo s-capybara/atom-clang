@@ -1,6 +1,11 @@
 {
   "variables": {
-    "llvm_config": "<!(./llvm-config.sh)"
+    "conditions": [
+      # In Windows, this command is executed in cmd.exe, where "./" is illegal.
+      # $PATH remains so that "bash" of MSYS still works.
+      ["OS=='win'", { "llvm_config": "bash llvm-config-win.sh" }],
+      ["OS!='win'", { "llvm_config": "<!(./llvm-config.sh)" }]
+    ]
   },
   "targets": [
     {
@@ -50,13 +55,28 @@
         "<!@(<(llvm_config) --includedir)",
       ],
       "link_settings": {
-        "libraries": [
-          "-Wl,-rpath,<!(<(llvm_config) --libdir)",
-          "<!@(<(llvm_config) --ldflags)",
-          "-lclang",
-          "<!@(<(llvm_config) --system-libs)",
-        ],
+        "conditions": [
+          ["OS!='win'", {
+            "libraries": [
+              "-Wl,-rpath,<!(<(llvm_config) --libdir)",
+              "<!@(<(llvm_config) --ldflags)",
+              "-lclang",
+              "<!@(<(llvm_config) --system-libs)",
+            ]
+          }]
+        ]
       },
+      "msvs_settings": {
+        "VCLinkerTool": {
+          "AdditionalLibraryDirectories": [
+            "<!(<(llvm_config) --libdir)"
+          ],
+          "AdditionalDependencies": [
+            "libclang.dll.a",
+            "psapi.lib"
+          ]
+        }
+      }
     },
   ]
 }

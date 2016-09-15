@@ -24,7 +24,8 @@ class command_line_args final
     NODE_CLANG_NO_MOVEABLE(command_line_args);
 
 public:
-    explicit command_line_args() noexcept = default;
+    // "noexcept = default" somehow causes a C2280 error in Visual Studio.
+    explicit command_line_args() noexcept {}
     explicit command_line_args(const v8::Local<v8::Array>& js_command_line_args);
     ~command_line_args() noexcept;
 
