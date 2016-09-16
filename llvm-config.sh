@@ -10,4 +10,10 @@
     || LLVM_CONFIG=$(which llvm-config-mp-3.9 2>/dev/null) \
     || LLVM_CONFIG=$(which llvm-config-mp-3.8 2>/dev/null)
 
+# On Windows, we need to convert the MSYS path to the absolute path of Windows,
+# because llvm-config is run from cmd.exe.
+if [[ ${OSTYPE} == msys ]]; then
+  LLVM_CONFIG=$(cygpath -am ${LLVM_CONFIG})
+fi
+
 echo -n ${LLVM_CONFIG}

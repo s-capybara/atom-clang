@@ -1,11 +1,8 @@
 {
   "variables": {
-    "conditions": [
-      # In Windows, this command is executed in cmd.exe, where "./" is illegal.
-      # $PATH remains so that "bash" of MSYS still works.
-      ["OS=='win'", { "llvm_config": "bash llvm-config-win.sh" }],
-      ["OS!='win'", { "llvm_config": "<!(./llvm-config.sh)" }]
-    ]
+    # On Windows, this command is executed in cmd.exe, where "./" is illegal,
+    # but $PATH remains so that "bash" of MSYS still works.
+    "llvm_config": "<!(bash llvm-config.sh)",
   },
   "targets": [
     {
@@ -23,7 +20,6 @@
         "__STDC_CONSTANT_MACROS",
         "__STDC_FORMAT_MACROS",
         "__STDC_LIMIT_MACROS",
-        "CLANG_SEARCH_PATH=\"<!(<(llvm_config) --libdir)/clang/<!(<(llvm_config) --version)/include\""
       ],
       "cflags!": [
       ],
@@ -51,8 +47,7 @@
         ],
       },
       "include_dirs": [
-        "<!(node -e \"require('nan')\")",
-        "<!@(<(llvm_config) --includedir)",
+        "<!(node -e \"require('nan')\")"
       ],
       "link_settings": {
         "conditions": [
@@ -76,7 +71,25 @@
             "psapi.lib"
           ]
         }
-      }
+      },
+      "conditions": [
+        ["OS!='win'", {
+          "include_dirs": [
+            "<!@(<(llvm_config) --includedir)"
+          ],
+          "defines": [
+            "CLANG_SEARCH_PATH=\"<!(<(llvm_config) --libdir)/clang/<!(<(llvm_config) --version)/include\""
+          ]
+        }],
+        ["OS=='win'", {
+          "include_dirs": [
+            "<!@(cygpath -am <!(<(llvm_config) --includedir))"
+          ],
+          "defines": [
+            "CLANG_SEARCH_PATH=\"<!(cygpath -am <!(<(llvm_config) --libdir))/clang/<!(<(llvm_config) --version)/include\""
+          ]
+        }],
+      ],
     },
   ]
 }
